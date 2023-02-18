@@ -105,25 +105,33 @@ app.post("/posts/add", upload.single("featureImage"), async (req, res) => {
           reject(error);
         }
       });
-
-      streamifier.createReadStream(req.file.buffer).pipe(stream);
+      if (req.file?.buffer) {
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      } else
+        reject(
+          "No images were uploaded! Not uploading images is not supported."
+        );
     });
   };
 
   async function upload(req) {
     let result = await streamUpload(req);
-    console.log(result);
+    // console.log(result);
     return result;
   }
 
-  upload(req).then((uploaded) => {
-    req.body.featureImage = uploaded.url;
-
-    // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
-    blogsService.addPost(req.body).then(() => {
-      res.redirect("/posts");
+  upload(req)
+    .then((uploaded) => {
+      req.body.featureImage = uploaded.url;
+      // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+      blogsService.addPost(req.body).then(() => {
+        res.redirect("/posts");
+      });
+    })
+    .catch((e) => {
+      res.json({ message: e });
+      //res.redirect("/posts");
     });
-  });
 });
 
 app.get("/post/value", async (req, res) => {
