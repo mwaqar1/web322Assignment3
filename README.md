@@ -1,2 +1,1 @@
-# web322Assignment3
-adding query features to blog 
+# web322Assignment2
